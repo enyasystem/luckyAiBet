@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horse Racing Game</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #2E3A24;
+            color: white;
+            text-align: center;
+        }
+
+        h1 {
+            color: #f39c12;
+            font-size: 2.5em;
+            margin: 30px 0;
+        }
+
+        .race-track {
+            margin: 20px auto;
+            padding: 20px;
+            background: rgba(52, 73, 94, 0.9);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 1200px;
+        }
+
+        .track {
+            position: relative;
+            background: url('path/to/grass-texture.jpg') no-repeat center center;
+            background-size: cover;
+            border-radius: 10px;
+            height: 80px;
+            margin: 10px 0;
+            overflow: hidden;
+            border: 2px solid #ecf0f1;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.6);
+        }
+
+        .horse {
+            position: absolute;
+            width: 60px;
+            height: auto;
+            left: 0;
+            transition: left 0.1s linear;
+            opacity: 0;
+            transform: translateZ(0) scale(1.2) rotateY(180deg);
+        }
+
+        .horse.galloping {
+            opacity: 1;
+            animation: gallop 0.4s steps(1) infinite;
+        }
+
+        @keyframes gallop {
+            0% { transform: translateY(0) scale(1.2) rotateY(180deg); }
+            25% { transform: translateY(-5px) scale(1.2) rotateY(180deg); }
+            50% { transform: translateY(0) scale(1.2) rotateY(180deg); }
+            75% { transform: translateY(5px) scale(1.2) rotateY(180deg); }
+        }
+
+        .finish-line {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 10px;
+            background: url('path/to/finish-line-image.png') repeat;
+        }
+
+        .btn-custom {
+            background-color: #e67e22;
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+        .btn-custom:hover {
+            background-color: #d35400;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        #timer {
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+
+        .win {
+            color: green;
+        }
+
+        .loss {
+            color: red;
+        }
+
+        .bet-info {
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2em;
+            }
+        }
+
+       /* New Loader styles */
+         /* Loader styles */
+         #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(10, 10, 10, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .pulse-loader {
+            width: 100px;
+            height: 100px;
+            background-color: #2E3A24;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .pulse-loader:before, .pulse-loader:after {
+            content: '';
+            position: absolute;
+            border: 5px solid #2E3A24;
+            border-radius: 50%;
+            animation: pulse 1.5s linear infinite;
+        }
+
+        .pulse-loader:before {
+            width: 100%;
+            height: 100%;
+        }
+
+        .pulse-loader:after {
+            width: 80%;
+            height: 80%;
+            animation-delay: 0.5s;
+        }
+
+        .pulse-loader .inner-circle {
+            width: 60%;
+            height: 60%;
+            background-color: #FFFFFF;
+            border-radius: 50%;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* Hide main content initially */
+        .container {
+            display: none; /* Hide the content initially */
+        }
+    </style>
+</head>
+<body>
+    <div id="message" style="display: none;"></div>
+    <!-- Loader -->
+    <div id="loader">
+        <div class="pulse-loader">
+            <div class="inner-circle"></div>
+        </div>
+    </div>
+    <div class="container">
+        <h1><i class="fas fa-horse-head"></i> Horse Racing Game</h1>
+
+        <!-- Updated balance display -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2>Your Balance</h2>
+                <p class="lead"><span id="balanceDisplay">0</span> TON</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <!-- Removed the balance input field -->
+                <div class="form-group">
+                    <label for="betAmount">Bet Amount (TON):</label>
+                    <input type="number" id="betAmount" class="form-control" min="1">
+                </div>
+
+                <div class="form-group">
+                    <label for="horseSelect">Select a Horse:</label>
+                    <select id="horseSelect" class="form-control">
+                        <option value="1">Horse 1</option>
+                        <option value="2">Horse 2</option>
+                        <option value="3">Horse 3</option>
+                        <option value="4">Horse 4</option>
+                        <option value="5">Horse 5</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="raceSpeed">Select Race Speed:</label>
+                    <select id="raceSpeed" class="form-control">
+                        <option value="slow">Slow</option>
+                        <option value="fast">Fast</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-custom btn-block" id="startRaceBtn">Start Race</button>
+            </div>
+        </div>
+
+        <div id="timer" class="text-white">00:00.000</div>
+
+        <div class="race-track">
+            <div class="track">
+                <img class="horse" id="horse1" src="horse-1.gif" alt="Horse 1">
+                <div class="finish-line"></div>
+            </div>
+            <div class="track">
+                <img class="horse" id="horse2" src="horse-1.gif" alt="Horse 2">
+                <div class="finish-line"></div>
+            </div>
+            <div class="track">
+                <img class="horse" id="horse3" src="horse-1.gif" alt="Horse 3">
+                <div class="finish-line"></div>
+            </div>
+            <div class="track">
+                <img class="horse" id="horse4" src="horse-1.gif" alt="Horse 4">
+                <div class="finish-line"></div>
+            </div>
+            <div class="track">
+                <img class="horse" id="horse5" src="horse-1.gif" alt="Horse 5">
+                <div class="finish-line"></div>
+            </div>
+        </div>
+
+        <div id="results" class="card mt-4">
+            <div class="card-body">
+                <h2>Race Results</h2>
+                <ul id="resultsList" class="list-unstyled"></ul>
+            </div>
+        </div>
+
+        <div id="adminPanel" class="card mt-4">
+            <div class="card-body">
+                <h2>Admin Panel</h2>
+                <div class="form-group">
+                    <label for="selectWinner">Select Winner:</label>
+                    <select id="selectWinner" class="form-control">
+                        <option value="1">Horse 1</option>
+                        <option value="2">Horse 2</option>
+                        <option value="3">Horse 3</option>
+                        <option value="4">Horse 4</option>
+                        <option value="5">Horse 5</option>
+                    </select>
+                    <button class="btn btn-custom mt-2" id="setWinnerBtn">Set Winner</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="bettingHistory" class="card mt-4">
+            <div class="card-body">
+                <h2>Betting History</h2>
+                <ul id="bettingHistoryList" class="list-unstyled"></ul>
+            </div>
+            <div id="gameStats" class="text-white mt-4">
+                Total Games Played: 0 | Total Games Won: 0
+            </div>
+        </div>
+    </div>
+<script src="./assets/js/script.js"></script>
+<script src="/shared.js"></script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviator Game</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #87CEEB; /* Sky blue */
+            font-family: Arial, sans-serif;
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            color: white;
+        }
+        #balance {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            color: white;
+        }
+        #timer {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            font-size: 24px;
+            color: white;
+        }
+        #gameArea {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 100px);
+            overflow: hidden;
+        }
+        #airplane {
+            position: absolute;
+            bottom: 10px;
+            left: 10px; /* Position airplane in the corner */
+            font-size: 50px;
+            transition: transform 0.1s;
+        }
+        #cashoutBtn, #betBtn, #startBtn {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: gold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #startBtn {
+            left: calc(50% + 100px); /* Position Start Game button next to Cash Out */
+        }
+        #betInput {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="score">Score: 0</div>
+<div id="balance">Balance: $100</div>
+<div id="timer">Timer: 10</div>
+<div id="gameArea">
+    <div id="airplane"><i class="fas fa-plane"></i></div>
+    <input type="number" id="betInput" placeholder="Enter your bet" min="1">
+    <button id="betBtn" >Place Bet</button>
+    <button id="cashoutBtn" >Cash Out</button>
+    <button id="startBtn">Start Game</button>
+</div>
+
+<script>
+    let score = 0;
+    let balance = 100; // Starting balance
+    let timer = 10;
+    let interval;
+    let isGameActive = false;
+    let betAmount = 0;
+
+    const scoreDisplay = document.getElementById('score');
+    const balanceDisplay = document.getElementById('balance');
+    const timerDisplay = document.getElementById('timer');
+    const airplane = document.getElementById('airplane');
+    const cashoutBtn = document.getElementById('cashoutBtn');
+    const betInput = document.getElementById('betInput');
+    const betBtn = document.getElementById('betBtn');
+    const startBtn = document.getElementById('startBtn');
+
+    // Start the game
+    function startGame() {
+        timer = 10;
+        isGameActive = true;
+        scoreDisplay.textContent = `Score: ${score}`;
+        timerDisplay.textContent = `Timer: ${timer}`;
+        airplane.style.transform = 'translate(-50%, -100%)';
+        airplane.style.transition = 'none'; // Disable transition for immediate effect
+
+        interval = setInterval(() => {
+            if (timer <= 0) {
+                endGame(false); // If time runs out, the plane falls
+            } else {
+                timer--;
+                timerDisplay.textContent = `Timer: ${timer}`;
+            }
+        }, 1000);
+
+        setTimeout(() => {
+            if (isGameActive) {
+                endGame(true); // If game reaches 10 seconds, the plane falls
+            }
+        }, 10000); // Game lasts for 10 seconds
+    }
+
+    // End the game
+    function endGame(fell) {
+        clearInterval(interval);
+        isGameActive = false;
+        airplane.style.transform = 'translate(-50%, 0)'; // Reset position
+        airplane.style.transition = 'transform 1s'; // Add transition back
+
+        if (fell) {
+            alert("You failed to Cash Out! You lost your bet!");
+            balance -= betAmount; // Deduct the bet amount
+        } else {
+            score += betAmount; // Add bet amount to score
+            balance += betAmount; // Add bet amount to balance
+            alert(`You successfully cashed out! Your new score is: ${score}`);
+        }
+
+        // Update displays
+        balanceDisplay.textContent = `Balance: $${balance}`;
+        betInput.disabled = false; // Enable betting input
+        betInput.value = ''; // Clear the input field
+        betBtn.disabled = true; // Disable the bet button
+        startBtn.disabled = true; // Disable start button
+        cashoutBtn.disabled = true; // Disable cashout button
+    }
+
+    // Validate and enable the bet button
+    betInput.addEventListener('input', () => {
+        const betValue = parseInt(betInput.value);
+        betBtn.disabled = isNaN(betValue) || betValue <= 0 || betValue > balance; // Enable bet button only if valid input
+    });
+
+    betBtn.addEventListener('click', () => {
+        betAmount = parseInt(betInput.value);
+        if (isNaN(betAmount) || betAmount <= 0 || betAmount > balance) {
+            alert("Please enter a valid bet amount.");
+            return;
+        }
+        balance -= betAmount; // Deduct the bet amount from balance
+        balanceDisplay.textContent = `Balance: $${balance}`; // Update balance display
+
+        betInput.disabled = true; // Disable betting input
+        betBtn.disabled = true; // Disable the bet button
+        startBtn.disabled = false; // Enable start button
+        cashoutBtn.disabled = false; // Enable cashout button
+    });
+
+    startBtn.addEventListener('click', () => {
+        if (!isGameActive) { // Ensure the game can only start if it's not active
+            startGame(); // Start the game
+        }
+    });
+
+    cashoutBtn.addEventListener('click', () => {
+        if (isGameActive) {
+            endGame(false); // Cash out before the plane falls
+        }
+    });
+</script>
+
+</body>
+</html>
