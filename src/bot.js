@@ -1,10 +1,11 @@
-require('dotenv').config();
 const { Telegraf } = require('telegraf');
 const TonWeb = require('tonweb');
 const tonweb = new TonWeb();
-const { BOT_TOKEN, ADMIN_CHAT_ID } = process.env;
 
-const bot = new Telegraf("6923930561:AAGmzS9TE0DkQ8K447SsdAh3SKB-Q0RjJTE");
+// Replace with your actual bot token and admin chat ID
+const BOT_TOKEN = "6923930561:AAGmzS9TE0DkQ8K447SsdAh3SKB-Q0RjJTE";
+const ADMIN_CHAT_ID = "your_admin_chat_id_here"; // Replace with your actual admin chat ID
+
 console.log('Bot token:', BOT_TOKEN);
 
 // Your TON wallet address here
@@ -47,6 +48,7 @@ const processWithdrawal = async (userWalletAddress, amountTON) => {
 };
 
 // Respond to the /start command
+const bot = new Telegraf(BOT_TOKEN);
 bot.start((ctx) => {
     const userName = ctx.from.first_name || ctx.from.username; // Get user's Telegram first name or username
     ctx.reply(`👋 Welcome, ${userName}! Here are the commands you can use:\n\n💼 /start - Start the bot\n📖 /help - Get help\n\nClick a button below to manage your account:`, {
