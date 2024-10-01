@@ -4,7 +4,7 @@ const TonWeb = require('tonweb');
 const tonweb = new TonWeb();
 const { BOT_TOKEN, ADMIN_CHAT_ID } = process.env;
 
-const bot = new Telegraf(BOT_TOKEN);
+const bot = new Telegraf(6923930561:AAGmzS9TE0DkQ8K447SsdAh3SKB-Q0RjJTE);
 console.log('Bot token:', BOT_TOKEN);
 
 // Your TON wallet address here
