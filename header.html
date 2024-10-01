@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuckyAI Game Header</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1a2f23;
+            --secondary-color: #3d5a4c;
+            --accent-color: #4caf50;
+            --text-color: #e0e0e0;
+            --background-color: #f0f2f0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            transition: background-color 0.3s ease;
+        }
+
+        .game-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 15px 20px;
+            color: var(--text-color);
+            box-shadow: 0 2px 15px var(--shadow-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--text-color);
+            box-shadow: 0 2px 5px var(--shadow-color);
+            object-fit: cover;
+        }
+
+        .game-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--text-color);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            margin: 0 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            flex-wrap: wrap;
+        }
+
+        .username {
+            margin-right: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .username:hover {
+            color: var(--text-color);
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.6);
+        }
+
+        .balance {
+            display: flex;
+            align-items: center;
+            color: #81c784;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .balance i {
+            margin-right: 5px;
+        }
+
+        .balance:hover {
+            color: #4caf50;
+            transform: scale(1.1);
+        }
+
+        .cta-button {
+            background-color: #4caf50;
+            border: none;
+            color: #e0e0e0;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0px 5px 10px rgba(76, 175, 80, 0.4);
+            margin: 10px 0;
+        }
+
+        .cta-button:hover {
+            background-color: #45a049;
+            box-shadow: 0px 5px 15px rgba(76, 175, 80, 0.7);
+            transform: translateY(-2px);
+        }
+
+        .progress-bar {
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            height: 8px;
+            width: 100px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .progress {
+            background-color: #4caf50;
+            height: 100%;
+            width: 70%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .dark-mode-toggle {
+            font-size: 20px;
+            cursor: pointer;
+            margin-left: 20px;
+            color: #81c784;
+            transition: color 0.3s ease;
+        }
+
+        body.dark-mode {
+            --primary-color: #0f1a14;
+            --secondary-color: #1e352d;
+            --accent-color: #388e3c;
+            --text-color: #e0e0e0;
+            --background-color: #1a2f23;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .balance-update {
+            animation: balancePulse 0.5s ease;
+        }
+
+        @keyframes balancePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @media (max-width: 768px) {
+            .row {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .game-title {
+                margin: 10px 0;
+            }
+
+            .user-info {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .username, .balance, .cta-button, .dark-mode-toggle {
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="game-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-auto">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 50 50'%3E%3Ccircle cx='25' cy='25' r='20' fill='%233d5a4c'/%3E%3Ctext x='50%25' y='50%25' font-size='20' text-anchor='middle' dy='.3em' fill='%23e0e0e0'%3EAI%3C/text%3E%3C/svg%3E" alt="LuckyAI Logo" class="logo">
+            </div>
+            <div class="col text-center">
+                <h1 class="game-title">LuckyAI</h1>
+            </div>
+            <div class="col-auto">
+                <div class="user-info">
+                    <span class="username">@username</span>
+                    <span class="balance"><i class="fas fa-coins"></i> <span class="balance-display">0</span> TON</span>
+                    <button class="cta-button">Deposit TON</button>
+                    <i class="fas fa-moon dark-mode-toggle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<script>
+    const balanceDisplay = document.querySelector('.balance-display');
+    const ctaButton = document.querySelector('.cta-button');
+    const darkModeToggle = document.querySelector('.dark-mode-toggle');
+    let balance = 0;
+
+    function updateBalance(amount) {
+        balance += amount;
+        balanceDisplay.textContent = balance.toFixed(2);
+        balanceDisplay.classList.add('balance-update');
+        setTimeout(() => {
+            balanceDisplay.classList.remove('balance-update');
+        }, 500);
+    }
+
+    ctaButton.addEventListener('click', function () {
+        updateBalance(100);
+    });
+
+    darkModeToggle.addEventListener('click', function () {
+        document.body.classList.toggle('dark-mode');
+        this.classList.toggle('fa-sun');
+        this.classList.toggle('fa-moon');
+    });
+
+    // Simulate loading progress
+    const progress = document.querySelector('.progress');
+    let width = 0;
+    const interval = setInterval(() => {
+        if (width >= 100) {
+            clearInterval(interval);
+        } else {
+            width++;
+            progress.style.width = width + '%';
+        }
+    }, 50);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horse Racing Game</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+            display: none;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .balance-card {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .track {
+            background-color: #8B4513;
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .horse {
+            width: 80px;
+            height: 60px;
+            background-image: url('https://example.com/horse.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            position: absolute;
+            transition: left 0.1s linear;
+            opacity: 0;
+        }
+        .horse.galloping {
+            animation: gallop 0.4s steps(4) infinite;
+        }
+        @keyframes gallop {
+            to { background-position: -320px 0; }
+        }
+        #horse1 { top: 10px; }
+        #horse2 { top: 90px; }
+        #horse3 { top: 170px; }
+        #horse4 { top: 250px; }
+        #horse5 { top: 330px; }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .controls > div {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .controls > div:last-child {
+            margin-right: 0;
+        }
+        select, input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #message {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        #timer {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .results, .betting-history {
+            margin-top: 20px;
+        }
+        .results h2, .betting-history h2 {
+            color: #333;
+        }
+        #resultsList, #bettingHistoryList {
+            list-style-type: none;
+            padding: 0;
+        }
+        #bettingHistoryList li {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        #bettingHistoryList li.win {
+            border-left: 5px solid #4CAF50;
+        }
+        #bettingHistoryList li.loss {
+            border-left: 5px solid #f44336;
+        }
+        .bet-info {
+            display: block;
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        #loader {
+            border: 16px solid #f3f3f3;
+            border-top: 16px solid #3498db;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="loader"></div>
+    <div class="container">
+        <h1>Horse Racing Game</h1>
+        <div class="balance-card">
+            <h2>Your Balance</h2>
+            <p><span id="balanceDisplay">0</span> TON</p>
+        </div>
+        <div class="track">
+            <div id="horse1" class="horse"></div>
+            <div id="horse2" class="horse"></div>
+            <div id="horse3" class="horse"></div>
+            <div id="horse4" class="horse"></div>
+            <div id="horse5" class="horse"></div>
+        </div>
+        <div id="timer">0.000</div>
+        <div class="controls">
+            <div>
+                <label for="horseSelect">Select Horse:</label>
+                <select id="horseSelect">
+                    <option value="1">Horse 1</option>
+                    <option value="2">Horse 2</option>
+                    <option value="3">Horse 3</option>
+                    <option value="4">Horse 4</option>
+                    <option value="5">Horse 5</option>
+                </select>
+            </div>
+            <div>
+                <label for="betAmount">Bet Amount (TON):</label>
+                <input type="number" id="betAmount" min="10" value="10">
+            </div>
+            <div>
+                <label for="raceSpeed">Race Speed:</label>
+                <select id="raceSpeed">
+                    <option value="normal">Normal</option>
+                    <option value="fast">Fast</option>
+                </select>
+            </div>
+            <div>
+                <button id="startRaceBtn">Start Race</button>
+            </div>
+        </div>
+        <div id="message"></div>
+        <div class="results">
+            <h2>Race Results</h2>
+            <ul id="resultsList"></ul>
+        </div>
+        <div class="betting-history">
+            <h2>Betting History</h2>
+            <ul id="bettingHistoryList"></ul>
+        </div>
+        <div class="admin-controls" style="margin-top: 20px;">
+            <label for="selectWinner">Set Winner (Admin):</label>
+            <select id="selectWinner">
+                <option value="1">Horse 1</option>
+                <option value="2">Horse 2</option>
+                <option value="3">Horse 3</option>
+                <option value="4">Horse 4</option>
+                <option value="5">Horse 5</option>
+            </select>
+            <button id="setWinnerBtn">Set Winner</button>
+        </div>
+    </div>
+    <script>
+        const horses = Array.from({ length: 5 }, (_, i) => ({
+            id: i + 1,
+            element: document.getElementById(`horse${i + 1}`),
+            position: 0
+        }));
+
+        const bettingHistory = document.getElementById("bettingHistoryList");
+        const raceSpeedSelect = document.getElementById('raceSpeed');
+        let raceSpeedMultiplier = 1;
+
+        const MIN_BET_AMOUNT = 10; // Minimum bet amount in TON
+
+        let betAmount = parseInt(document.getElementById('betAmount').value);
+        let selectedHorse = 1;
+        let raceOngoing = false;
+        let timerInterval;
+        let setWinner = null;
+
+        document.getElementById('horseSelect').addEventListener('change', (e) => {
+            selectedHorse = parseInt(e.target.value);
+        });
+
+        document.getElementById('betAmount').addEventListener('change', (e) => {
+            betAmount = parseInt(e.target.value);
+            if (betAmount < MIN_BET_AMOUNT) {
+                showMessage(`Minimum bet amount is ${MIN_BET_AMOUNT} TON`, 'red');
+                e.target.value = MIN_BET_AMOUNT;
+                betAmount = MIN_BET_AMOUNT;
+            }
+        });
+
+        document.getElementById('startRaceBtn').addEventListener('click', startRace);
+        document.getElementById('setWinnerBtn').addEventListener('click', setRaceWinner);
+        raceSpeedSelect.addEventListener('change', updateRaceSpeed);
+
+        function updateRaceSpeed() {
+            raceSpeedMultiplier = raceSpeedSelect.value === 'fast' ? 2 : 1;
+        }
+
+        function getBalance() {
+            // Retrieve the balance from localStorage or fallback to 0 if not set
+            return parseInt(localStorage.getItem('balance')) || 0;
+        }
+
+        function setBalance(newBalance) {
+            // Update both the balance in the DOM and localStorage
+            document.getElementById('balanceDisplay').textContent = newBalance;
+            localStorage.setItem('balance', newBalance);
+        }
+
+        // Initialize balance display
+        setBalance(getBalance());
+
+        function startRace() {
+            if (raceOngoing) {
+                showMessage("Race already ongoing!", 'red');
+                return;
+            }
+
+            if (betAmount < MIN_BET_AMOUNT) {
+                showMessage(`Minimum bet amount is ${MIN_BET_AMOUNT} TON`, 'red');
+                return;
+            }
+
+            if (getBalance() < betAmount) {
+                showMessage("Insufficient balance!", 'red');
+                return;
+            }
+
+            raceOngoing = true;
+            resetRace();
+
+            setBalance(getBalance() - betAmount);
+            showMessage(`Bet placed: ${betAmount} TON on Horse ${selectedHorse}`, 'green');
+
+            startTimer();
+
+            horses.forEach(horse => {
+                horse.element.classList.add('galloping');
+                horse.element.style.opacity = 1;
+            });
+
+            const raceDuration = 5400;
+            const startTime = Date.now();
+            const raceInterval = setInterval(() => {
+                if (Date.now() - startTime >= raceDuration) {
+                    clearInterval(raceInterval);
+                    endRace();
+                } else {
+                    moveHorses();
+                }
+            }, 100);
+        }
+
+        function resetRace() {
+            horses.forEach(horse => {
+                horse.position = 0;
+                horse.element.style.left = '0px';
+                horse.element.classList.remove('galloping');
+                horse.element.style.opacity = 0;
+            });
+        }
+
+        function moveHorses() {
+            horses.forEach(horse => {
+                if (setWinner && setWinner === horse.id) {
+                    horse.position += Math.random() * 15 * raceSpeedMultiplier;
+                } else {
+                    horse.position += Math.random() * 10 * raceSpeedMultiplier;
+                }
+
+                horse.element.style.left = `${horse.position}px`;
+
+                if (horse.position >= document.querySelector('.track').clientWidth - 80) {
+                    horse.position = document.querySelector('.track').clientWidth - 80;
+                }
+            });
+        }
+
+        function endRace() {
+            raceOngoing = false;
+            stopTimer();
+
+            const winner = setWinner || horses.reduce((prev, curr) => prev.position > curr.position ? prev : curr).id;
+            displayResults(winner);
+
+            const outcome = winner === selectedHorse ? 'win' : 'loss';
+            updateBettingHistory(outcome, winner);
+
+            if (outcome === 'win') {
+                const winnings = betAmount * 2;
+                setBalance(getBalance() + winnings);
+                showMessage(`Congratulations! You won ${winnings} TON`, 'green');
+            } else {
+                showMessage(`Sorry, you lost ${betAmount} TON`, 'red');
+            }
+
+            setWinner = null;
+
+            resetHorses();
+        }
+
+        function resetHorses() {
+            setTimeout(() => {
+                horses.forEach(horse => {
+                    horse.position = 0;
+                    horse.element.style.left = '0px';
+                    horse.element.classList.remove('galloping');
+                    horse.element.style.opacity = 0;
+                });
+            }, 1000);
+        }
+
+        function setRaceWinner() {
+            setWinner = parseInt(document.getElementById('selectWinner').value);
+            showMessage(`Admin has set Horse ${setWinner} as the potential winner!`, 'green');
+        }
+
+        function startTimer() {
+            let startTime = Date.now();
+            timerInterval = setInterval(() => {
+                let elapsedTime = Date.now() - startTime;
+                document.getElementById('timer').innerText = (elapsedTime / 1000).toFixed(3);
+            }, 100);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        function displayResults(winner) {
+            const resultsList = document.getElementById('resultsList');
+            resultsList.innerHTML = `<li>Horse ${winner} is the winner!</li>`;
+        }
+
+        function updateBettingHistory(outcome, winner) {
+            const winnings = outcome === 'win' ? betAmount * 2 : 0;
+            const betHistoryEntry = document.createElement('li');
+            betHistoryEntry.classList.add(outcome === 'win' ? 'win' : 'loss');
+            betHistoryEntry.innerHTML = `
+                <i class="fas fa-${outcome === 'win' ? 'check-circle' : 'times-circle'}"></i>
+                You bet on Horse ${selectedHorse}, Horse ${winner} won! 
+                <span class="bet-info">Bet Amount: ${betAmount} TON | Total Winnings: ${winnings} TON</span>
+            `;
+            bettingHistory.prepend(betHistoryEntry);
+        }
+
+        function showMessage(message, color) {
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = message;
+            messageElement.style.color = color;
+            messageElement.style.display = 'block';
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, 3000);
+        }
+
+        setTimeout(function() {
+            document.getElementById('loader').style.display = 'none';
+            document.querySelector('.container').style.display = 'block';
+            // Initialize balance display when the page loads
+            setBalance(getBalance());
+        }, 1000);
+    </script>
+</body>
+</html>
